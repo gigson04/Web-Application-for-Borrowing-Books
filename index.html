@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Library — Book Borrowing Request</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --parchment: #f4f1ea;
+            --deep-green: #1b3022;
+            --gold: #c5a059;
+            --deep-brown: #3e2723;
+            --text-color: #2c1e1a;
+            --white: #ffffff;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lora', serif;
+            background-color: var(--parchment);
+            background-image: url("https://www.transparenttextures.com/patterns/parchment.png");
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            width: 100%;
+            max-width: 800px;
+            position: relative;
+        }
+
+        .logo-container {
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            fill: var(--deep-green);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            color: var(--deep-green);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            font-style: italic;
+            color: var(--deep-brown);
+            opacity: 0.8;
+        }
+
+        .view-db-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--deep-green);
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 1.2rem;
+            font-family: 'Playfair Display', serif;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+            font-size: 0.9rem;
+        }
+
+        .view-db-btn:hover {
+            background: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border-top: 5px solid var(--gold);
+            position: relative;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--deep-brown);
+            font-size: 0.95rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+            background-color: #fafafa;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--gold);
+            background-color: var(--white);
+            box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.2);
+        }
+
+        input:hover, select:hover {
+            border-color: var(--gold);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--deep-green);
+            color: var(--white);
+            border: none;
+            border-radius: 4px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+
+        .submit-btn:hover {
+            background-color: var(--deep-brown);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: var(--parchment);
+            background-image: url("https://www.transparenttextures.com/patterns/parchment.png");
+            padding: 3rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border-top: 8px solid var(--gold);
+            text-align: center;
+            animation: modalIn 0.4s ease-out;
+        }
+
+        @keyframes modalIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--deep-green);
+            margin-bottom: 1.5rem;
+        }
+
+        .summary-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 4px;
+            text-align: left;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--gold);
+        }
+
+        .summary-item {
+            margin-bottom: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 0.4rem;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: var(--deep-brown);
+        }
+
+        .summary-value {
+            color: var(--text-color);
+        }
+
+        .new-request-btn {
+            background: var(--deep-green);
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 2rem;
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .new-request-btn:hover {
+            background: var(--gold);
+        }
+
+        /* Database Modal Styles */
+        .db-modal-content {
+            max-width: 900px;
+            width: 95%;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            overflow-y: auto;
+            margin-bottom: 1.5rem;
+            background: var(--white);
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: var(--deep-green);
+            color: var(--white);
+            padding: 1rem;
+            text-align: left;
+            font-family: 'Playfair Display', serif;
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #f1f1f1;
+        }
+
+        .db-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .export-btn {
+            background: var(--gold);
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-family: 'Playfair Display', serif;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .export-btn:hover {
+            background: var(--deep-brown);
+        }
+
+        .close-db-btn {
+            background: #666;
+            color: var(--white);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-family: 'Playfair Display', serif;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .close-db-btn:hover {
+            background: #333;
+        }
+
+        .empty-msg {
+            padding: 2rem;
+            text-align: center;
+            font-style: italic;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .container { padding: 1.5rem; }
+            .view-db-btn { position: static; margin-bottom: 1rem; width: 100%; }
+            header { display: flex; flex-direction: column; align-items: center; }
+            .db-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <header id="header">
+        <button class="view-db-btn" id="viewDbBtn">View Records</button>
+        <div class="logo-container">
+            <svg class="logo-icon" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" style="display:none;"/>
+                <path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 9H9V9h10v2zm-4 4H9v-2h6v2zm4-8H9V5h10v2z"/>
+            </svg>
+        </div>
+        <h1>School Library</h1>
+        <p class="subtitle">Book Borrowing Request System</p>
+    </header>
+
+    <main class="container" id="mainFormContainer">
+        <form id="borrowForm">
+            <div class="form-group">
+                <label for="idNumber">ID Number</label>
+                <input type="text" id="idNumber" placeholder="e.g. STU12345" required>
+            </div>
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group">
+                <label for="course">Course</label>
+                <select id="course" required>
+                    <option value="" disabled selected>Select your course</option>
+                    <option value="Computer Science">Computer Science</option>
+                    <option value="Information Technology">Information Technology</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Business Administration">Business Administration</option>
+                    <option value="Education">Education</option>
+                    <option value="Arts & Sciences">Arts & Sciences</option>
+                    <option value="Nursing">Nursing</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="bookCount">Number of Books to Borrow (Max 5)</label>
+                <input type="number" id="bookCount" min="1" max="5" value="1" required>
+            </div>
+            <button type="submit" class="submit-btn">Submit Request</button>
+        </form>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal-content">
+            <h2 class="modal-title">Request Submitted!</h2>
+            <p style="margin-bottom: 1rem;">Your borrowing request has been received. Here are your details:</p>
+            <div class="summary-card" id="summaryCard">
+                <!-- Summary items will be injected here -->
+            </div>
+            <button class="new-request-btn" id="newRequestBtn">New Request</button>
+        </div>
+    </div>
+
+    <!-- Database Modal -->
+    <div class="modal-overlay" id="dbModal">
+        <div class="modal-content db-modal-content">
+            <h2 class="modal-title">Borrowing Records</h2>
+            <div class="table-container">
+                <table id="recordsTable">
+                    <thead>
+                        <tr>
+                            <th>ID Number</th>
+                            <th>Full Name</th>
+                            <th>Course</th>
+                            <th>Books</th>
+                            <th>Date & Time</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recordsBody">
+                        <!-- Records will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="db-actions">
+                <button class="export-btn" id="exportBtn">Export to CSV</button>
+                <button class="close-db-btn" id="closeDbBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // In-memory database
+        let records = [];
+
+        // DOM Elements
+        const borrowForm = document.getElementById('borrowForm');
+        const confirmModal = document.getElementById('confirmModal');
+        const dbModal = document.getElementById('dbModal');
+        const summaryCard = document.getElementById('summaryCard');
+        const recordsBody = document.getElementById('recordsBody');
+        
+        const viewDbBtn = document.getElementById('viewDbBtn');
+        const closeDbBtn = document.getElementById('closeDbBtn');
+        const newRequestBtn = document.getElementById('newRequestBtn');
+        const exportBtn = document.getElementById('exportBtn');
+
+        // Form Submission
+        borrowForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Get values
+            const idNumber = document.getElementById('idNumber').value.trim();
+            const fullName = document.getElementById('fullName').value.trim();
+            const course = document.getElementById('course').value;
+            const bookCount = document.getElementById('bookCount').value;
+
+            // Validation: Alphanumeric ID
+            const idRegex = /^[a-z0-9]+$/i;
+            if (!idRegex.test(idNumber)) {
+                alert('ID Number must only contain alphanumeric characters.');
+                return;
+            }
+
+            // Validation: Book count
+            if (bookCount < 1 || bookCount > 5) {
+                alert('Number of books must be between 1 and 5.');
+                return;
+            }
+
+            const now = new Date();
+            const dateTimeStr = now.toLocaleString();
+
+            // Save to "database"
+            const newRecord = {
+                idNumber,
+                fullName,
+                course,
+                bookCount,
+                dateTime: dateTimeStr
+            };
+            records.push(newRecord);
+
+            // Show summary
+            showSummary(newRecord);
+        });
+
+        function showSummary(record) {
+            summaryCard.innerHTML = `
+                <div class="summary-item">
+                    <span class="summary-label">ID Number:</span>
+                    <span class="summary-value">${record.idNumber}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Full Name:</span>
+                    <span class="summary-value">${record.fullName}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Course:</span>
+                    <span class="summary-value">${record.course}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Books:</span>
+                    <span class="summary-value">${record.bookCount}</span>
+                </div>
+                <div class="summary-item" style="border-bottom: none;">
+                    <span class="summary-label">Date & Time:</span>
+                    <span class="summary-value">${record.dateTime}</span>
+                </div>
+            `;
+            confirmModal.style.display = 'flex';
+        }
+
+        // New Request / Reset
+        newRequestBtn.addEventListener('click', function() {
+            borrowForm.reset();
+            confirmModal.style.display = 'none';
+        });
+
+        // View Database
+        viewDbBtn.addEventListener('click', function() {
+            updateRecordsTable();
+            dbModal.style.display = 'flex';
+        });
+
+        function updateRecordsTable() {
+            recordsBody.innerHTML = '';
+            if (records.length === 0) {
+                recordsBody.innerHTML = '<tr><td colspan="5" class="empty-msg">No records found.</td></tr>';
+                return;
+            }
+
+            records.forEach(record => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${record.idNumber}</td>
+                    <td>${record.fullName}</td>
+                    <td>${record.course}</td>
+                    <td>${record.bookCount}</td>
+                    <td>${record.dateTime}</td>
+                `;
+                recordsBody.appendChild(row);
+            });
+        }
+
+        // Close Database
+        closeDbBtn.addEventListener('click', function() {
+            dbModal.style.display = 'none';
+        });
+
+        // Export to CSV
+        exportBtn.addEventListener('click', function() {
+            if (records.length === 0) {
+                alert('No records to export.');
+                return;
+            }
+
+            const headers = ['ID Number', 'Full Name', 'Course', 'Number of Books', 'Date & Time'];
+            const csvRows = [headers.join(',')];
+
+            records.forEach(record => {
+                const row = [
+                    `"${record.idNumber}"`,
+                    `"${record.fullName}"`,
+                    `"${record.course}"`,
+                    record.bookCount,
+                    `"${record.dateTime}"`
+                ];
+                csvRows.push(row.join(','));
+            });
+
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'library_borrowing_records.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        // Close modals on overlay click
+        window.addEventListener('click', function(e) {
+            if (e.target === confirmModal) {
+                confirmModal.style.display = 'none';
+            }
+            if (e.target === dbModal) {
+                dbModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
